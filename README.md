@@ -31,3 +31,5 @@ Admin params
 3. Add ability to change driving mode
     - figure out which command to pass to websocket: eg {change_mode=local}
     - figure out how to send WS command in console
+4. Installation
+    - how to run docker console commands from non-root user
