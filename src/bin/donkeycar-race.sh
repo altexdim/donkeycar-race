@@ -118,7 +118,7 @@ case "${ext_command}" in
         echo "Stop container"
         echo Executing a command:
         set -x
-        docker stop "$conainer_name"
+        docker kill "$conainer_name"
     ;;
 
     change_drive_mode)
