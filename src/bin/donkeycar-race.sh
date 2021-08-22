@@ -1,13 +1,14 @@
 #!/bin/bash
 
-usage_sh () { echo >&2 "Usage: $0 -p PORT -i IMAGE_NAME"; exit 1; }
-usage_ssh () { echo >&2 'Usage: ssh -T user@host -- -c <start_container|change_drive_mode> [-t IMAGE_TAG] [-r '\''"RUN_COMMAND"'\''] [-m <user|local>]'; exit 1; }
+usage_sh () { echo >&2 "Usage: $0 -p <PORT> -i <IMAGE_NAME> -n <CONTAINER_NAME>"; exit 1; }
+usage_ssh () { echo >&2 'Usage: ssh -T user@host -- -c <start_container|stop_container|change_drive_mode> [-t IMAGE_TAG] [-r '\''"RUN_COMMAND"'\''] [-m <user|local>]'; exit 1; }
 
-while getopts p:i: flag
+while getopts p:i:n: flag
 do
     case "${flag}" in
         p) port=${OPTARG};;
         i) image=${OPTARG};;
+        n) conainer_name=${OPTARG};;
         [?]) usage_sh;;
     esac
 done
@@ -22,6 +23,20 @@ then
     echo "Image variable is not set"
     usage_sh
 fi
+if [ -z "$conainer_name" ]
+then
+    echo "Name variable is not set"
+    usage_sh
+fi
+
+(
+    echo "===="
+    echo -n "Date: "
+    date
+    echo "Command: $0 $@"
+    echo "Remote command: $SSH_ORIGINAL_COMMAND"
+    echo "----"
+)  | tee -a ~/logs/donkeycar-race-$conainer_name.log
 
 COMMAND_ARRAY=()
 while read line; do
@@ -32,20 +47,20 @@ COMMAND_ARRAY_LEN=${#COMMAND_ARRAY[@]}
 for (( i=0; i<$COMMAND_ARRAY_LEN; i++ )); do
     case "${COMMAND_ARRAY[$i]}" in
         "-c")
-	    ((i++))
-	    ext_command="${COMMAND_ARRAY[$i]}"
+        ((i++))
+        ext_command="${COMMAND_ARRAY[$i]}"
         ;;
         "-t")
-	    ((i++))
-	    ext_image_tag="${COMMAND_ARRAY[$i]}"
+        ((i++))
+        ext_image_tag="${COMMAND_ARRAY[$i]}"
         ;;
         "-r") 
-	    ((i++))
-	    ext_run_command="${COMMAND_ARRAY[$i]}"
+        ((i++))
+        ext_run_command="${COMMAND_ARRAY[$i]}"
         ;;
         "-m") 
-	    ((i++))
-	    ext_mode="${COMMAND_ARRAY[$i]}"
+        ((i++))
+        ext_mode="${COMMAND_ARRAY[$i]}"
         ;;
         [?]) usage_ssh;;
     esac
@@ -54,6 +69,7 @@ done
 echo "Original command: '$SSH_ORIGINAL_COMMAND'"
 echo "Port: $port"
 echo "Image: $image"
+echo "Container name: $conainer_name"
 echo "Command: $ext_command"
 
 case "${ext_command}" in
@@ -73,11 +89,15 @@ case "${ext_command}" in
         echo "Container run command: '$ext_run_command'"
     ;;
 
+    stop_container)
+        echo "Stop container"
+    ;;
+
     change_drive_mode)
         if [ -z "$ext_mode" ]
         then
             echo "Mode must be set for $ext_command"
-	    usage_ssh
+            usage_ssh
         fi
 
         echo "Mode: $ext_mode"
@@ -87,5 +107,22 @@ case "${ext_command}" in
 esac
 
 echo Executing a command:
-echo "docker run --rm --network=donkeycar -p \"127.0.0.1:$port:8887\" \"$image:$ext_image_tag\" bash -c \"$ext_run_command\""
+set -x
 
+case "${ext_command}" in
+    start_container)
+        echo "Start container"
+        docker run --rm --name "$conainer_name" --network=donkeycar -p "127.0.0.1:$port:8887" "$image:$ext_image_tag" bash -c "$ext_run_command"
+    ;;
+
+    stop_container)
+        echo "Stop container"
+        docker stop "$conainer_name"
+    ;;
+
+    change_drive_mode)
+        echo "Change drive mode"
+    ;;
+
+    *) usage_ssh;;
+esac
