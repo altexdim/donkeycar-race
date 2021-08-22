@@ -112,3 +112,7 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
 5. The example of stopping a car
 
     ```ssh -T testuser@localhost -- -c change_drive_mode -m user```
+
+# Troubleshooting
+
+1. If a container doesn't see ```host.docker.internal``` host, then add ```--add-host=host.docker.internal:host-gateway``` to the docker run command
