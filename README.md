@@ -7,20 +7,20 @@
 # Functional requirements
 
 User params
-    - docker image tag:
+    * docker image tag:
         ```eg: "v2"```
-    - run command:
+    * run command:
         ```eg: "cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"```
-    - a command:
+    * a command:
         ```eg: "start_container|stop_container|change_drive_mode"```
 
 example of resulting command
-    docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
+    ```docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"```
 
 Admin params
-    - local port for mapping host's tcp port to container's tcp/8887 port
-    - docker image name: eg: "altexdim/donkeycar_race2"
-    - docker container name: eg: "donkeycar_altex"
+    * local port for mapping host's tcp port to container's tcp/8887 port
+    * docker image name: eg: "altexdim/donkeycar_race2"
+    * docker container name: eg: "donkeycar_altex"
     
 # Plan
 
