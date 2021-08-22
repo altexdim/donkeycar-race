@@ -34,20 +34,23 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
 
 # Plan
 
+[+] test1
+[ ] test2
+
 1. Write a script
 
-[+] figure out how to pass user arguments inside the script  
-    ```$SSH_ORIGINAL_COMMAND```
-[+] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed  
-    ```
-    cat /home/testuser/.ssh/authorized_keys
-    command="...",restrict
-    ```
-[-] hardening security of the script
-    * kill a docker container after some time
-    * kill a docker container after connection is lost
-    * maybe implement a watchdog
-    * killswitch to stop all the participants' containers
+    [+] figure out how to pass user arguments inside the script
+        ```$SSH_ORIGINAL_COMMAND```
+    [+] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed
+        ```
+        cat /home/testuser/.ssh/authorized_keys
+        command="...",restrict
+        ```
+    [-] hardening security of the script
+        * kill a docker container after some time
+        * kill a docker container after connection is lost
+        * maybe implement a watchdog
+        * killswitch to stop all the participants' containers
 
 2. Configure the network and firewall
     [+] figure out how to enable internet access for the manually created docker bridge user-defined network
