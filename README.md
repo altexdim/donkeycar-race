@@ -6,8 +6,7 @@
 
 # Functional requirements
 
-User params 
-
+User params  
     * docker image tag:
         ```
         eg: "v2"
