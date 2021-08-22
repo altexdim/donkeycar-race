@@ -32,64 +32,6 @@ Example of the resulting command:
 docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
 ```
 
-# Plan
-
-1. Write a script
-
-    - [x] figure out how to pass user arguments inside the script
-        ```$SSH_ORIGINAL_COMMAND```
-    - [x] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed
-        ```
-        cat /home/dockeruser/.ssh/authorized_keys
-        command="...",restrict
-        ```
-    - [ ] hardening security of the script
-        * kill a docker container after some time
-        * kill a docker container after connection is lost
-        * maybe implement a watchdog
-        * killswitch to stop all the participants' containers
-
-2. Configure the network and firewall
-    - [x] figure out how to enable internet access for the manually created docker bridge user-defined network
-        ```docker network create donkeysim```
-    - [x] figure out how to restrict the access to the desired host/port in iptables
-        * find out and copy the network address for the newly created network
-        ```docker network inspect donkeysim```
-        * add firewall rules
-        ```
-        # 93.184.216.34 - is just an example here, this is supposed to be the Sim ip address
-        # 172.18.0.0/16 - this is our donkeysim network
-        iptables -I DOCKER-USER 1 -s 93.184.216.34/32 -d 172.18.0.0/16 -j RETURN
-        iptables -I DOCKER-USER 2 -s 172.18.0.0/16 -d 93.184.216.34/32 -j RETURN
-        iptables -I DOCKER-USER 3 -s 172.18.0.0/16 -d 172.18.0.0/16 -j RETURN
-        iptables -I DOCKER-USER 4 -s 172.18.0.0/16 -j REJECT --reject-with icmp-port-unreachable
-        iptables -I DOCKER-USER 5 -d 172.18.0.0/16 -j REJECT --reject-with icmp-port-unreachable
-        iptables -I DOCKER-USER 6 -j RETURN
-        ```
-      * dont forget to save the rules so they'll be there after restart ```service iptables save```
-        
-    - [ ] hardening security of the donkeysim network
-        * actually iptables is enough
-3. Add ability to change driving mode
-    - [x] figure out which command to pass to websocket: eg {change_mode=local}
-      ```
-      {"angle":0,"throttle":0,"drive_mode":"local_angle","recording":false}
-      
-      ```
-    - [x] figure out how to send WS command in console
-      ```
-      echo '{"angle":0,"throttle":0,"drive_mode":"local_angle","recording":false}' | websocat ws://127.0.0.1:8887/wsDrive
-      ```
-4. Installation details
-    - [x] How to run docker console commands from non-root user
-        ```sudo usermod -aG docker dockeruser```
-    - [x] Logs
-        ```mkdir /home/dockeruser/logs```
-    - [x] General
-        ```
-        touch /home/dockeruser/.ssh/authorized_keys
-        copy script to /home/dockeruser/bin/donkeysim-race.sh
-        ```
 # Step by step installation guide for the administrator
     
 - [ ] Add a local linux user on the docker host machine.
@@ -202,12 +144,12 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
     - `dockerhost` is the docker host domain name or ip address 
     - `dockerport` is the port number for the SSH access
     - Test that it's working: `ssh -T dockeruser@dockerhost -p dockerport`
-  - [ ] Kindly ask the administrator to provide you with he hostname or IP address of the Simulation, as well as the port
+  - [ ] Kindly ask the administrator to provide you with the hostname or IP address of the Simulation, as well as the port
     - Example: `simulation.host:9091`
     - Where:
       - `simulation.host` is the hostname or IP address of the Simulation
       - `9091` is the port number of the Simulation
-    This IP address you'll be using when creating your docker container image. This is the
+    This IP address you'll be using when creating your docker container image.
   - [ ] Upload your docker container to the DockerHub, and remember you tag for the image you want to use.
     Use https://github.com/connected-autonomous-mobility/diyrobocar_docker_agent_pln as a general guidance on how to build you own docker container and to upload your docker image.
     - Also keep in mind the address of the Simulation (ie `simulation.host:9091`). Make sure you set in correctly in your config files before building the container locally and before uploading it to the DockerHub.
