@@ -34,28 +34,25 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
 
 # Plan
 
-[+] test1
-[ ] test2
-
 1. Write a script
 
-    [+] figure out how to pass user arguments inside the script
+    - [+] figure out how to pass user arguments inside the script
         ```$SSH_ORIGINAL_COMMAND```
-    [+] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed
+    - [+] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed
         ```
         cat /home/testuser/.ssh/authorized_keys
         command="...",restrict
         ```
-    [-] hardening security of the script
+    - [-] hardening security of the script
         * kill a docker container after some time
         * kill a docker container after connection is lost
         * maybe implement a watchdog
         * killswitch to stop all the participants' containers
 
 2. Configure the network and firewall
-    [+] figure out how to enable internet access for the manually created docker bridge user-defined network
+    - [+] figure out how to enable internet access for the manually created docker bridge user-defined network
         ```docker network create donkeycar```
-    [+] figure out how to restrict the access to the desired host/port in iptables
+    - [+] figure out how to restrict the access to the desired host/port in iptables
         * docker network inspect donkeycar - copy network address
         ```
         iptables -I DOCKER-USER 1 -s 93.184.216.34/32 -d 172.18.0.0/16 -j RETURN
@@ -65,17 +62,17 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
         iptables -I DOCKER-USER 5 -d 172.18.0.0/16 -j REJECT --reject-with icmp-port-unreachable
         iptables -I DOCKER-USER 6 -j RETURN
         ```
-    [-] hardening security of the donkeycar network
+    - [-] hardening security of the donkeycar network
         * actually iptables is enough
 3. Add ability to change driving mode
-    [-] figure out which command to pass to websocket: eg {change_mode=local}
-    [-] figure out how to send WS command in console
+    - [-] figure out which command to pass to websocket: eg {change_mode=local}
+    - [-] figure out how to send WS command in console
 4. Installation
-    [+] How to run docker console commands from non-root user
+    - [+] How to run docker console commands from non-root user
         ```sudo usermod -aG docker testuser```
-    [+] Logs
+    - [+] Logs
         ```mkdir /home/testuser/logs```
-    [+] General
+    - [+] General
         ```
         touch /home/testuser/.ssh/authorized_keys
         copy script to /home/testuser/bin/donkeycar-race.sh
