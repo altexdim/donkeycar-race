@@ -24,8 +24,8 @@ User params
 Admin params
 
 + local port for mapping host's tcp port to container's tcp/8887 port
-+ docker image name: eg: "altexdim/donkeycar_race2"
-+ docker container name: eg: "donkeycar_altex"
++ docker image name: `eg: "altexdim/donkeycar_race2"`
++ docker container name: `eg: "donkeycar_altex"`
    
 Example of the resulting command:
 
