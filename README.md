@@ -65,8 +65,16 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
     - [ ] hardening security of the donkeycar network
         * actually iptables is enough
 3. Add ability to change driving mode
-    - [ ] figure out which command to pass to websocket: eg {change_mode=local}
-    - [ ] figure out how to send WS command in console
+    - [x] figure out which command to pass to websocket: eg {change_mode=local}
+      ```
+      {"angle":0,"throttle":0,"drive_mode":"local_angle","recording":false}
+      
+      ```
+    - [x] figure out how to send WS command in console
+      ```
+      echo '{"angle":0,"throttle":0,"drive_mode":"local_angle","recording":false}' | websocat ws://127.0.0.1:8887/wsDrive
+      
+      ```
 4. Installation
     - [x] How to run docker console commands from non-root user
         ```sudo usermod -aG docker testuser```

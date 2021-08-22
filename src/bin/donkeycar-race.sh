@@ -106,22 +106,32 @@ case "${ext_command}" in
     *) usage_ssh;;
 esac
 
-echo Executing a command:
-set -x
-
 case "${ext_command}" in
     start_container)
         echo "Start container"
+        echo Executing a command:
+        set -x
         docker run --rm --name "$conainer_name" --network=donkeycar -p "127.0.0.1:$port:8887" "$image:$ext_image_tag" bash -c "$ext_run_command"
     ;;
 
     stop_container)
         echo "Stop container"
+        echo Executing a command:
+        set -x
         docker stop "$conainer_name"
     ;;
 
     change_drive_mode)
-        echo "Change drive mode"
+        if [ "$ext_mode" != "user" -a "$ext_mode" != "local" -a "$ext_mode" != "local_angle" ]
+        then
+            echo "Wrong mode: $ext_mode"
+            usage_ssh
+        fi
+
+        echo "Change drive mode to $ext_mode"
+        echo Executing a command:
+        set -x
+        echo '{"angle":0,"throttle":0,"drive_mode":"'"$ext_mode"'","recording":false}' | websocat "ws://127.0.0.1:$port/wsDrive"
     ;;
 
     *) usage_ssh;;
