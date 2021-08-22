@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage_sh () { echo >&2 "Usage: $0 -p <PORT> -i <IMAGE_NAME> -n <CONTAINER_NAME>"; exit 1; }
-usage_ssh () { echo >&2 'Usage: ssh -T user@host -- -c <start_container|stop_container|change_drive_mode> [-t IMAGE_TAG] [-r '\''"RUN_COMMAND"'\''] [-m <user|local>]'; exit 1; }
+usage_ssh () { echo >&2 'Usage: ssh -T user@host -- -c <start_container|stop_container|change_drive_mode> [-t IMAGE_TAG] [-r '\''"RUN_COMMAND"'\''] [-m <user|local|local_angle>]'; exit 1; }
 
 while getopts p:i:n: flag
 do
@@ -111,7 +111,7 @@ case "${ext_command}" in
         echo "Start container"
         echo Executing a command:
         set -x
-        docker run --rm --name "$conainer_name" --network=donkeycar -p "127.0.0.1:$port:8887" "$image:$ext_image_tag" bash -c "$ext_run_command"
+        docker run --rm --name "$conainer_name" --network=donkeycar --add-host=host.docker.internal:host-gateway -p "127.0.0.1:$port:8887" "$image:$ext_image_tag" bash -c "$ext_run_command"
     ;;
 
     stop_container)
