@@ -36,9 +36,9 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
 
 1. Write a script
 
-[+] figure out how to pass user arguments inside the script
+[+] figure out how to pass user arguments inside the script  
     ```$SSH_ORIGINAL_COMMAND```
-[+] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed
+[+] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed  
     ```
     cat /home/testuser/.ssh/authorized_keys
     command="...",restrict
