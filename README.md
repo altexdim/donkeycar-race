@@ -54,29 +54,34 @@ Admin params
     + Logs
         mkdir /home/testuser/logs
     + General
+        ```
         touch /home/testuser/.ssh/authorized_keys
         copy script to /home/testuser/bin/donkeycar-race.sh
+        ```
 
 # Output 
 
 1. The example of adding a participant
 
+```
 cat /home/testuser/.ssh/authorized_keys
-
 command="/home/testuser/bin/donkeycar-race.sh -p 18887 -i altexdim/donkeycar_race2 -n donkeycar_altex",restrict ssh-ed25519 AAAA...
+```
 
 2. The example of running a docker container
 
+```
 ssh -T testuser@localhost -- -c start_container -t v2 -r '"cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"'
+```
 
 3. The example of stopping a docker container
 
-ssh -T testuser@localhost -- -c stop_container
+```ssh -T testuser@localhost -- -c stop_container```
 
 4. The example of starting a car
 
-ssh -T testuser@localhost -- -c change_drive_mode -m local
+```ssh -T testuser@localhost -- -c change_drive_mode -m local```
 
 5. The example of stopping a car
 
-ssh -T testuser@localhost -- -c change_drive_mode -m user
+```ssh -T testuser@localhost -- -c change_drive_mode -m user```
