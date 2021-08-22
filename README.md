@@ -93,16 +93,65 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
         ```
 # Step by step installation for the administrator
     
- - Add a local linux user on the docker host machine.
-   Note that it's needed only one local linux user to run all the participans' containers.
-   There's no need to add as many local linux users as the number of participants.
-   It would be also a wise idea to disable login by password in /etc/sshd/sshd.conf and to change the SSH port from
-   the default 22 to something random like 28974.
- - Add the local linux user to the docker group to be able to run docker commands for that user.
-   ``` 
-   # "dockeruser" - is the local linux user on the dockerhost host
-   sudo usermod -aG docker dockeruser
-   ```
+- [ ] Add a local linux user on the docker host machine.
+  Note that it's needed only one local linux user to run all the participans' containers.
+  There's no need to add as many local linux users as the number of participants.
+  - `dockeruser` is used in the examples throughout this document. 
+  - `dockerhost` is used as a reference to the docker host machine in this document.
+- [ ] (Optional) It would be also a wise idea to disable login by password (so the only option for the authentication is a public key) in `/etc/sshd/sshd.conf`, and to change the SSH port from
+  the default `22` to something random like `28974`.
+- [ ] Add a local linux user to the docker group to be able to run docker commands for that user.
+  ``` 
+  # "dockeruser" - is the local linux user on the dockerhost host
+  sudo usermod -aG docker dockeruser
+  ```
+- [ ] Create the SSH authentication file for that user
+  ``` 
+  mkdir /home/dockeruser/.ssh/
+  chmod 600 /home/dockeruser/.ssh/
+  touch /home/dockeruser/.ssh/authorized_keys
+  chmod 600 /home/dockeruser/.ssh/authorized_keys
+  ```
+- [ ] Create a folder for logs
+  ```
+  mkdir /home/dockeruser/logs/
+  ```
+- [ ] Put the `src/bin/donkeysim-race.sh` file from this repository to the bin folder for the local user 
+  ```
+  mkdir /home/dockeruser/bin/
+  # git clone {this_repo}  
+  # cp {this_repo}/src/bin/donkeysim-race.sh /home/dockeruser/bin/donkeysim-race.sh
+  chmod +x /home/dockeruser/bin/donkeysim-race.sh
+  ```
+- [ ] Add a user-defined bridge network called `donkeysim` for the docker
+  ```
+  docker network create donkeysim
+  ```
+- [ ] Inspect the `donkeysim` network for IP address and network mask
+  ```
+  docker network inspect donkeycar | grep Subnet
+  # Output: "Subnet": "172.18.0.0/16",
+  ```
+- [ ] Add the firewall rules for the docker network
+    ```
+    # Sim ip: 93.184.216.34 - is just an example here, this is supposed to be the Simulator ip address
+    # Donkersim net: 172.18.0.0/16 - this is our donkeysim network
+    iptables -I DOCKER-USER 1 -s 93.184.216.34/32 -d 172.18.0.0/16 -j RETURN
+    iptables -I DOCKER-USER 2 -s 172.18.0.0/16 -d 93.184.216.34/32 -j RETURN
+    iptables -I DOCKER-USER 3 -s 172.18.0.0/16 -d 172.18.0.0/16 -j RETURN
+    iptables -I DOCKER-USER 4 -s 172.18.0.0/16 -j REJECT --reject-with icmp-port-unreachable
+    iptables -I DOCKER-USER 5 -d 172.18.0.0/16 -j REJECT --reject-with icmp-port-unreachable
+    iptables -I DOCKER-USER 6 -j RETURN
+    ```
+- [ ] Save the firewall rules
+    ```
+    # (optional) mkdir /etc/iptables
+    iptables-save > /etc/iptables/rules.v4
+    ```
+    Note that on Ubuntu it's needed to instal the additional packege to restore the firewall rules on stratup
+    ```
+    # sudo apt-get install iptables-persistent
+    ```
 
 # Output 
 
