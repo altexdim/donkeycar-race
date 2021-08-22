@@ -6,23 +6,26 @@
 
 # Functional requirements
 
-* User params  
-    * docker image tag:  
-        ```
-        eg: "v2"
-        ```  
-    * run command:  
-        ```
-        eg: "cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"
-        ```  
-    * a command:  
-        ```
-        eg: "start_container|stop_container|change_drive_mode"
-        ```
-* Admin params
-    + local port for mapping host's tcp port to container's tcp/8887 port
-    + docker image name: eg: "altexdim/donkeycar_race2"
-    + docker container name: eg: "donkeycar_altex"
+User params
+
+* docker image tag:  
+```
+eg: "v2"
+```  
+* run command:  
+```
+eg: "cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"
+```  
+* a command:  
+```
+eg: "start_container|stop_container|change_drive_mode"
+```
+
+Admin params
+
++ local port for mapping host's tcp port to container's tcp/8887 port
++ docker image name: eg: "altexdim/donkeycar_race2"
++ docker container name: eg: "donkeycar_altex"
    
 Example of the resulting command:
 
