@@ -56,4 +56,3 @@ ssh -T testuser@localhost -- -c change_drive_mode -m local
 4. The example of stopping a car
 
 ssh -T testuser@localhost -- -c change_drive_mode -m user
-
