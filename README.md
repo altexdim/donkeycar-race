@@ -189,7 +189,7 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
       {"angle":0,"throttle":0,"drive_mode":"local","recording":false}'
       ```
       to your container's `tcp/8887` port via WebSocket protocol
-      to using the URL `ws://127.0.0.1:8887/wsDrive`
+      using the URL `ws://127.0.0.1:8887/wsDrive`
     - As a reaction to that WebSocket message your car will start moving (if you are using the DonkeyCar framework, or if you implemented your WebSocket server on the `tcp/8887` port of your docker container)
 
   - [ ] (Optional) To stop you car you can use the following command
@@ -211,7 +211,7 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
       {"angle":0,"throttle":0,"drive_mode":"user","recording":false}'
       ```
       to your container's `tcp/8887` port via WebSocket protocol
-      to using the URL `ws://127.0.0.1:8887/wsDrive`
+      using the URL `ws://127.0.0.1:8887/wsDrive`
 
 # Troubleshooting
 
