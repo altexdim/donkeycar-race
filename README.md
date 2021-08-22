@@ -6,7 +6,7 @@
 
 # Functional requirements
 
-* User params  
+User params  
     * docker image tag:  
         ```
         eg: "v2"
@@ -27,7 +27,7 @@
 Example of resulting command:
 
 ```
-    docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
+docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
 ```
 
 # Plan
