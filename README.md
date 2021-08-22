@@ -25,11 +25,11 @@ Admin params
 
 + local port for mapping host's tcp port to container's tcp/8887 port
 + docker image name: `eg: "altexdim/donkeycar_race2"`
-+ docker container name: `eg: "donkeycar_altex"`
++ docker container name: `eg: "donkeysim_altex"`
    
 Example of the resulting command:
 ```
-docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
+docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
 ```
 
 # Plan
@@ -40,7 +40,7 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
         ```$SSH_ORIGINAL_COMMAND```
     - [x] figure out how to restrict terminal access, meaning -T should be enforced, so no real terminal is allowed
         ```
-        cat /home/testuser/.ssh/authorized_keys
+        cat /home/dockeruser/.ssh/authorized_keys
         command="...",restrict
         ```
     - [ ] hardening security of the script
@@ -51,10 +51,14 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
 
 2. Configure the network and firewall
     - [x] figure out how to enable internet access for the manually created docker bridge user-defined network
-        ```docker network create donkeycar```
+        ```docker network create donkeysim```
     - [x] figure out how to restrict the access to the desired host/port in iptables
-        * docker network inspect donkeycar - copy network address
+        * find out and copy the network address for the newly created network
+        ```docker network inspect donkeysim```
+        * add firewall rules
         ```
+        # 93.184.216.34 - is just an example here, this is supposed to be the Sim ip address
+        # 172.18.0.0/16 - this is our donkeysim network
         iptables -I DOCKER-USER 1 -s 93.184.216.34/32 -d 172.18.0.0/16 -j RETURN
         iptables -I DOCKER-USER 2 -s 172.18.0.0/16 -d 93.184.216.34/32 -j RETURN
         iptables -I DOCKER-USER 3 -s 172.18.0.0/16 -d 172.18.0.0/16 -j RETURN
@@ -62,7 +66,9 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
         iptables -I DOCKER-USER 5 -d 172.18.0.0/16 -j REJECT --reject-with icmp-port-unreachable
         iptables -I DOCKER-USER 6 -j RETURN
         ```
-    - [ ] hardening security of the donkeycar network
+      * dont forget to save the rules so they'll be there after restart ```service iptables save```
+        
+    - [ ] hardening security of the donkeysim network
         * actually iptables is enough
 3. Add ability to change driving mode
     - [x] figure out which command to pass to websocket: eg {change_mode=local}
@@ -75,43 +81,57 @@ docker run --rm --network=donkeycar -p "127.0.0.1:$admin_defined_port:8887" "$us
       echo '{"angle":0,"throttle":0,"drive_mode":"local_angle","recording":false}' | websocat ws://127.0.0.1:8887/wsDrive
       
       ```
-4. Installation
+4. Installation details
     - [x] How to run docker console commands from non-root user
-        ```sudo usermod -aG docker testuser```
+        ```sudo usermod -aG docker dockeruser```
     - [x] Logs
-        ```mkdir /home/testuser/logs```
+        ```mkdir /home/dockeruser/logs```
     - [x] General
         ```
-        touch /home/testuser/.ssh/authorized_keys
-        copy script to /home/testuser/bin/donkeycar-race.sh
+        touch /home/dockeruser/.ssh/authorized_keys
+        copy script to /home/dockeruser/bin/donkeysim-race.sh
         ```
+5. Step by step installation for the administrator
+    - Add a local linux user on the docker host machine.
+      Note that it's needed only one local linux user to run all the participans' containers.
+      There's no need to add as many local linux users as the number of participants.
+      It would be also a wise idea to disable login by password in /etc/sshd/sshd.conf and to change the SSH port from
+      the default 22 to something random like 28974.
+    - Add the local linux user to the docker group to be able to run docker commands for that user.
+      ``` 
+      # "dockeruser" - is the local linux user on the dockerhost host
+      sudo usermod -aG docker dockeruser
+      ```
+   
 
 # Output 
 
 1. The example of adding a participant
 
     ```
-    cat /home/testuser/.ssh/authorized_keys
-    command="/home/testuser/bin/donkeycar-race.sh -p 18887 -i altexdim/donkeycar_race2 -n donkeycar_altex",restrict ssh-ed25519 AAAA...
+    # open up the ssh authentication config for the user dockeruser
+    vim /home/dockeruser/.ssh/authorized_keys
+    # add the line like this:
+    command="/home/dockeruser/bin/donkeysim-race.sh -p 18887 -i altexdim/donkeycar_race2 -n donkeysim_altex",restrict ssh-ed25519 AAAA...
     ```
 
 2. The example of running a docker container
 
     ```
-    ssh -T testuser@localhost -- -c start_container -t v2 -r '"cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"'
+    ssh -T dockeruser@localhost -- -c start_container -t v2 -r '"cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"'
     ```
 
 3. The example of stopping a docker container
 
-    ```ssh -T testuser@localhost -- -c stop_container```
+    ```ssh -T dockeruser@dockerhost -- -c stop_container```
 
 4. The example of starting a car
 
-    ```ssh -T testuser@localhost -- -c change_drive_mode -m local```
+    ```ssh -T dockeruser@dockerhost -- -c change_drive_mode -m local```
 
 5. The example of stopping a car
 
-    ```ssh -T testuser@localhost -- -c change_drive_mode -m user```
+    ```ssh -T dockeruser@localhost -- -c change_drive_mode -m user```
 
 # Troubleshooting
 

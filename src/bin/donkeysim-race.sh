@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage_sh () { echo >&2 "Usage: $0 -p <PORT> -i <IMAGE_NAME> -n <CONTAINER_NAME>"; exit 1; }
-usage_ssh () { echo >&2 'Usage: ssh -T user@host -- -c <start_container|stop_container|change_drive_mode> [-t IMAGE_TAG] [-r '\''"RUN_COMMAND"'\''] [-m <user|local|local_angle>]'; exit 1; }
+usage_ssh () { echo >&2 'Usage: ssh -T dockeruser@dockerhost -- -c <start_container|stop_container|change_drive_mode> [-t IMAGE_TAG] [-r '\''"RUN_COMMAND"'\''] [-m <user|local|local_angle>]'; exit 1; }
 
 while getopts p:i:n: flag
 do
@@ -36,7 +36,7 @@ fi
     echo "Command: $0 $@"
     echo "Remote command: $SSH_ORIGINAL_COMMAND"
     echo "----"
-)  | tee -a ~/logs/donkeycar-race-$conainer_name.log
+)  | tee -a ~/logs/donkeysim-race-$conainer_name.log
 
 COMMAND_ARRAY=()
 while read line; do
@@ -111,7 +111,8 @@ case "${ext_command}" in
         echo "Start container"
         echo Executing a command:
         set -x
-        docker run --rm --name "$conainer_name" --network=donkeycar --add-host=host.docker.internal:host-gateway -p "127.0.0.1:$port:8887" "$image:$ext_image_tag" bash -c "$ext_run_command"
+        # HINT: add "--gpus" argument to allow GPU usage inside the docker container
+        docker run --rm --name "$conainer_name" --network=donkeysim --add-host=host.docker.internal:host-gateway -p "127.0.0.1:$port:8887" "$image:$ext_image_tag" bash -c "$ext_run_command"
     ;;
 
     stop_container)
