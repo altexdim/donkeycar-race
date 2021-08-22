@@ -91,18 +91,18 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
         touch /home/dockeruser/.ssh/authorized_keys
         copy script to /home/dockeruser/bin/donkeysim-race.sh
         ```
-5. Step by step installation for the administrator
-    - Add a local linux user on the docker host machine.
-      Note that it's needed only one local linux user to run all the participans' containers.
-      There's no need to add as many local linux users as the number of participants.
-      It would be also a wise idea to disable login by password in /etc/sshd/sshd.conf and to change the SSH port from
-      the default 22 to something random like 28974.
-    - Add the local linux user to the docker group to be able to run docker commands for that user.
-      ``` 
-      # "dockeruser" - is the local linux user on the dockerhost host
-      sudo usermod -aG docker dockeruser
-      ```
-   
+# Step by step installation for the administrator
+    
+ - Add a local linux user on the docker host machine.
+   Note that it's needed only one local linux user to run all the participans' containers.
+   There's no need to add as many local linux users as the number of participants.
+   It would be also a wise idea to disable login by password in /etc/sshd/sshd.conf and to change the SSH port from
+   the default 22 to something random like 28974.
+ - Add the local linux user to the docker group to be able to run docker commands for that user.
+   ``` 
+   # "dockeruser" - is the local linux user on the dockerhost host
+   sudo usermod -aG docker dockeruser
+   ```
 
 # Output 
 
