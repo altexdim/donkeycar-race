@@ -153,7 +153,32 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
     # sudo apt-get install iptables-persistent
     ```
 
-# Output 
+# Step by step adding a new participant for the administrator
+
+- [ ] Request all the necessary information from the participant
+  - the SSH public key 
+  - the docker image name from the dockerhub (pre-build container images are stored there)
+- [ ] Add the participant to the SSH authentication file
+    ```
+    vim /home/dockeruser/.ssh/authorized_keys
+    command="/home/dockeruser/bin/donkeysim-race.sh -p 18887 -i altexdim/donkeycar_race2 -n donkeysim_altex",restrict ssh-ed25519 AAAA...
+    ```
+  In this example:
+  - `18887` is the local tcp port on the `dockerhost` to be able to change drive mode. Just use any free port.
+  - `altexdim/donkeycar_race2` is the example of the image name provided from the participant
+  - `donkeysim_altex` is the container name to refer to using docker command. You can choose any name you like for this particular participant. This will be used to start and stop the container. This will also restrict the usage of this container to only one instance at a time.
+  - `restrict` pay extra attention to that argument, it's required to disallow shell access to the `dockerhost`
+  - `/home/dockeruser/bin/donkeysim-race.sh` is our management script from the current repository
+
+# Step by step removing a participant for the administrator
+
+- [ ] Remove the participant's SSH key from the SSH authentication file
+    ```
+    vim /home/dockeruser/.ssh/authorized_keys
+    # REMOVE THIS LINE >>> command="...",restrict ssh-ed25519 AAAA...
+    ```
+
+# Usage examples 
 
 1. The example of adding a participant
 
