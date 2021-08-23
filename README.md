@@ -1,7 +1,7 @@
 # Objectives
 
 1. To run and stop a docker container via ssh -T command in restricted mode, available for participants
-2. To change the driving mode from `user` to `local` (and back) for a DonkerCar compatible frameworks via ssh, available for participants
+2. To change the driving mode from `user` to `local` (and back) for the DonkeyCar compatible frameworks via ssh, available for participants
 3. To resrtict the access for the containers to only the Simulation
 
 # Functional requirements
@@ -21,10 +21,18 @@ Parameters contolled by an administrator
 + A docker image name: `eg: "altexdim/donkeycar_race2"`
 + A docker container name: `eg: "donkeysim_altex"`
    
-Example of the command which will be executed on a docker host machine as a result for a participant:
+Example of the command which will be executed on a docker host machine in result for a participant:
 ```
 docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
 ```
+
+# Nonfunctional requirements
+
+* No internet access from the containers.
+* The only IP address which is allowed to access from the Docker container is the Simulation address
+* No shell access for participants on the docker host machine
+* Restricted number of pre-defined commands is available for participants to run on the docker host
+* No builds of docker containers is allowed for participants. All the docker images should be pre-build and uploaded to the DockerHub.
 
 # Step by step installation guide for an administrator
     
@@ -70,7 +78,7 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
 - [ ] Add the firewall rules for the docker network
     ```
     # Sim ip: 93.184.216.34 - is just an example here, this is supposed to be the Simulator ip address
-    # Donkersim net: 172.18.0.0/16 - this is our donkeysim network
+    # Donkeysim net: 172.18.0.0/16 - this is our donkeysim network
     iptables -I DOCKER-USER 1 -s 93.184.216.34/32 -d 172.18.0.0/16 -j RETURN
     iptables -I DOCKER-USER 2 -s 172.18.0.0/16 -d 93.184.216.34/32 -j RETURN
     iptables -I DOCKER-USER 3 -s 172.18.0.0/16 -d 172.18.0.0/16 -j RETURN
@@ -154,31 +162,37 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
     ```
     Usage: ssh -T user@host -- -c <start_container|stop_container|change_drive_mode> [-t IMAGE_TAG] [-r '"RUN_COMMAND"'] [-m <user|local|local_angle>]
     ```
-  - [ ] Kindly ask the administrator to provide you with the hostname or IP address of the Simulation, as well as the port
+  - [ ] Kindly ask the administrator to provide you with the hostname or IP address of the Simulation, as well as the port number
     - Example: `simulation.host:9091`
     - Where:
       - `simulation.host` is the hostname or IP address of the Simulation
-      - `9091` is the port number of the Simulation
-    This IP address you'll be using when creating your docker container image.
-  - [ ] Upload your docker container to the DockerHub, and remember you tag for the image you want to use.
-    Use https://github.com/connected-autonomous-mobility/diyrobocar_docker_agent_pln as a general guidance on how to build you own docker container and to upload your docker image.
+      - `9091` is the port number of the Simulation. 
+    
+    You suppose to use this IP address to connect to the Simulation environment.
+  - [ ] Upload your docker container to the DockerHub, and remember your tag for the image you want to use.
+    Use https://github.com/connected-autonomous-mobility/diyrobocar_docker_agent_pln as a general guidance on how to build you own docker container for the DonkeyCar framework and to upload your docker image.
     - Also keep in mind the address of the Simulation (ie `simulation.host:9091`). Make sure you set in correctly in your config files before building the container locally and before uploading it to the DockerHub.
-    - Also keep in mind that you don't have to activate autostart for you model if you provide the DonkeyCar compatible WebSocket API exposed in you container on the `tcp/8887` port. You'll be able to use a separate SSH command to start you car.  
+    - Also keep in mind that you don't have to activate autostart for you model if you provide the DonkeyCar compatible WebSocket API exposed in you container on the `tcp/8887` port. You'll be able to use a separate SSH command to start you car.
+      > Usually it's recommended to use auto start for the car model which is running in the docker container, so when the container starts the car is also begins to drive automaticaly. But in this case we don't need that so the car should be configured without auto start. To start the car you'll use another command:
+      > ```
+      > ssh -T dockeruser@dockerhost -p 22 -- -c change_drive_mode -m local
+      > ```
+      > See more details below.
 
-# How to race guide for participant
+# How to race guide for a participant
 
-  - [ ] To start the container
+  - [ ] To start the container use the following command:
 
     ```
     ssh -T dockeruser@dockerhost -p 22 -- -c start_container -t v2 -r '"cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py"'
     ```
     Where:
-    - `dockeruser` is the dockeruser provided by the administrator
-    - `dockerhost` is the dockerhost provided by the administrator
+    - `dockeruser` is the docker user provided by the administrator
+    - `dockerhost` is the docker host domain name or IP address provided by the administrator
     - `22` is the SSH port number provided by the administrator
-    - `v2` is the Docker Image Tag which you used when uploading the docker image to the DockerHub
+    - `v2` is the Docker Image Tag which you created when uploaded the docker image to the DockerHub
     - `cd /root/myrace/ && python3 /root/myrace/manage.py drive --model /root/myrace/models/mypilot_circuit_launch_19.h5 --myconfig=myconfig-trnm-local.py` is the example of the command you use inside you docker container to launch a model.
-    - Keep in mind double quotes `-r '"<run_command>"'` - they are required. It's also not allowed to use any quotes inside the run_command otherwise it could fail to run.
+    - Keep in mind double quotes `-r '"<run_command>"'` - they are required. It's also not allowed to use any quotes inside the `run_command` otherwise it could fail to run.
     - Keep in mind that starting a docker container should not start a car automaticaly as we provide a separate SSH command to start a car.
 
   - [ ] After the race you have to stop your container as soon as possible. Prepare this command in advance in a separate linux console for easy access.
@@ -202,7 +216,7 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
       using the URL `ws://127.0.0.1:8887/wsDrive`
     - As a reaction to that WebSocket message your car will start moving (if you are using the DonkeyCar framework, or if you implemented your WebSocket server on the `tcp/8887` port of your docker container)
 
-  - [ ] (Optional) To stop you car you can use the following command
+  - [ ] (Optional) To stop you car you can use the following command. It's optional because your car will be stopped automatically if you stop the container.
 
     ```
     ssh -T dockeruser@dockerhost -p 22 -- -c change_drive_mode -m local_angle
