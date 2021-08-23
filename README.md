@@ -26,7 +26,7 @@ Example of the command which will be executed on a docker host machine in result
 docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$user_docker_image:$image_tag" bash -c "$user_command"
 ```
 
-# Nonfunctional requirements
+# Non-functional requirements
 
 * No internet access from the containers.
 * The only IP address which is allowed to access from the Docker container is the Simulation address
