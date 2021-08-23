@@ -34,6 +34,10 @@ docker run --rm --network=donkeysim -p "127.0.0.1:$admin_defined_port:8887" "$us
 * Restricted number of pre-defined commands is available for participants to run on the docker host
 * No builds of docker containers is allowed for participants. All the docker images should be pre-build and uploaded to the DockerHub.
 
+# Solution overview
+
+![Solution overview](img/donkercar-race-architecture.png)
+
 # Step by step installation guide for an administrator
     
 - [ ] Add a local linux user on the docker host machine.
